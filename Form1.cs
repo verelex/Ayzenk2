@@ -19,7 +19,7 @@ namespace Ayzenk2
         // answer type: 0=false answer,1=true answer,2=skipped
         private LinkedList<ProgressBarElement> stepBoxList;
         //private List<int> skippedFrames;
-        private int Value { get; set; }
+        private int progressBarActiveElementIndex { get; set; }
         private bool MainSequenceCompleted { get; set; }
         public int MaxValue { get; set; }
 
@@ -85,9 +85,9 @@ namespace Ayzenk2
             // vxProgressBar init
             VxProgressBarInit();
 
-            if (Value < MaxValue)
+            if (indexIsNotOwerflow())// ненужная проверка
             {
-                LoadLearningEnvironment(Value + 1);
+                LoadLearningEnvironment(progressBarActiveElementIndex + 1);
             }
         }
 
@@ -162,7 +162,7 @@ namespace Ayzenk2
 
         private void VxProgressBarInit()
         {
-            Value = 0;
+            progressBarActiveElementIndex = 0;
             stepBoxList = new LinkedList<ProgressBarElement>();
             stepSeparatorArray = new PictureBox[MaxValue];
 
@@ -172,7 +172,7 @@ namespace Ayzenk2
                 pbe.Location = new Point(i * 65, 0);
                 pbe.Width = 60;
                 pbe.Height = 60;
-                //pbe.Tag = i;
+                pbe.Tag = i; // uses in PrgrsbrElmt_Paint()
                 pbe.BackColor = Color.MidnightBlue;
                 pbe.Click += new System.EventHandler(PrgrsbrElmt_Click);
                 pbe.Paint += new System.Windows.Forms.PaintEventHandler(PrgrsbrElmt_Paint);
@@ -195,11 +195,6 @@ namespace Ayzenk2
             }
         }
 
-        private void ShowSpecificFrame(int frameNumber)
-        {
-            Value = frameNumber;
-            LoadLearningEnvironment(frameNumber);
-        }
         void PrgrsbrElmt_Click(object sender, EventArgs e)
         {
             var control = sender as PictureBox;
@@ -226,7 +221,7 @@ namespace Ayzenk2
 
         void PrgrsbrElmt_Paint(object sender, PaintEventArgs e)
         {
-            var control = sender as Control;
+            var control = sender as PictureBox;
             if (control != null)
             {
                 using (Font myFont = new Font("Arial", 8))
@@ -241,9 +236,9 @@ namespace Ayzenk2
 
         public void setColor(Color color)
         {
-            if (Value < MaxValue)
+            if (indexIsNotOwerflow())
             {
-                var sbl = stepBoxList.ElementAt(Value);
+                var sbl = stepBoxList.ElementAt(progressBarActiveElementIndex);
                 sbl.image.BackColor = color;
             }
         }
@@ -251,7 +246,7 @@ namespace Ayzenk2
         public void PerformStep(Color color)
         {
             setColor(color);
-            Value += 1;
+            progressBarActiveElementIndex += 1;
         }
 
         // меняет местами картинки ListA[a].img - ListB[b].img
@@ -317,7 +312,7 @@ namespace Ayzenk2
 
                 if (checkedButton != null)
                 {
-                    var sbl = stepBoxList.ElementAt(Value);
+                    var sbl = stepBoxList.ElementAt(progressBarActiveElementIndex);
                     int oneBazedAnswer = trueAnswer + 1;
                     if (checkedButton.Text.Equals(oneBazedAnswer.ToString())) // верный ответ
                     {
@@ -326,8 +321,7 @@ namespace Ayzenk2
                             sbl.answered = true;
                             sbl.answerType = 1;
                         }
-                        //MessageBox.Show("ok");
-                        PerformStep(Color.Green);
+                        PerformStep(Color.Green); // делает Value++
                     }
                     else // неправильный ответ
                     {
@@ -336,17 +330,24 @@ namespace Ayzenk2
                             sbl.answered = true;
                             sbl.answerType = 0;
                         }
-                        //MessageBox.Show("error");
-                        PerformStep(Color.Red);
+                        PerformStep(Color.Red); // делает Value++
                     }
                     //
-                    if (Value < MaxValue)
+                    if (indexIsNotOwerflow() && !MainSequenceCompleted)
                     {
-                        LoadLearningEnvironment(Value + 1);
+                        LoadLearningEnvironment(progressBarActiveElementIndex + 1);
                     }
                     else
                     {
                         MainSequenceCompleted = true;
+                        if (GetSkippedElements())
+                        {
+                            LoadLearningEnvSkipped();
+                        }
+                        else
+                        {
+                            ShowResult();
+                        }
                     }
                 }
                 else { MessageBox.Show("Вариант ответа не выбран!"); }
@@ -357,13 +358,74 @@ namespace Ayzenk2
             }
         }
 
+        private bool indexIsNotOwerflow()
+        {
+            if (progressBarActiveElementIndex < MaxValue)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private void LoadLearningEnvSkipped()
+        {
+            foreach (ProgressBarElement pbe in stepBoxList)
+            {
+                if (pbe.answerType == 2) // 2=skipped answer
+                {
+                    progressBarActiveElementIndex = pbe.index;
+                    LoadLearningEnvironment(pbe.index + 1);
+                    return;
+                }
+            }
+        }
+
+        private bool GetSkippedElements()
+        {
+            foreach(ProgressBarElement pbe in stepBoxList)
+            {
+                if (pbe.answerType == 2) // 2=skipped answer
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void ShowResult()
+        {
+            string str = $"согласно данного теста ваш IQ по 10-балльной системе = {GetTrueAnswersCount()}";
+            MessageBox.Show(str,"All completed!",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+        }
+
+        private int GetTrueAnswersCount()
+        {
+            var i = 0;
+            foreach (ProgressBarElement pbe in stepBoxList)
+            {
+                if (pbe.answerType == 1) // 1= true answer
+                {
+                    i++;
+                }
+            }
+            return i;
+        }
+
         private void buttonSkip_Click(object sender, EventArgs e)
         {
-            //
-            PerformStep(Color.SandyBrown);
-            if (Value < MaxValue)
+            if(progressBarActiveElementIndex - 1 >= MaxValue) // последний элемент
+            { 
+                return; 
+            } 
+            else 
             {
-                LoadLearningEnvironment(Value + 1);
+                PerformStep(Color.SandyBrown);
+                buttonNext.Text = progressBarActiveElementIndex.ToString();
+            }
+            
+            if (indexIsNotOwerflow())
+            {
+                LoadLearningEnvironment(progressBarActiveElementIndex + 1);
             }
             else
             {
