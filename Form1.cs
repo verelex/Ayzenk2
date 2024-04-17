@@ -327,50 +327,36 @@ namespace Ayzenk2
         {
             try
             {
-                var checkedButton = groupBoxAnswer.Controls.OfType<RadioButton>()
-                                      .FirstOrDefault(r => r.Checked);
-
-                if (checkedButton != null)
+                var sbl = stepBoxList.ElementAt(progrsBarActiveIndex);
+                if (sbl.answered) // если уже отвечали
                 {
-                    var sbl = stepBoxList.ElementAt(progrsBarActiveIndex); //10
-                    if (sbl.answered) // если уже отвечали
-                    {
-                        progrsBarActiveIndex += 1;
-                        return;
-                    }
-                    else // еще не отвечали
+                    //GetFirstUnanswered();
+                    progrsBarActiveIndex++;
+                    LoadLearningEnvironment(progrsBarActiveIndex + 1);
+                    return;
+                }
+                else // если еще не отвечали
+                {
+                    var checkedButton = groupBoxAnswer.Controls.OfType<RadioButton>()
+                                      .FirstOrDefault(r => r.Checked);
+                    if (checkedButton != null) // если выбран ответ
                     {
                         sbl.answered = true;
-                        if (indexIsNotOwerflow())
+                        int oneBazedAnswer = trueAnswer + 1;
+                        if (checkedButton.Text.Equals(oneBazedAnswer.ToString())) // верный ответ
                         {
-                            int oneBazedAnswer = trueAnswer + 1;
-                            if (checkedButton.Text.Equals(oneBazedAnswer.ToString())) // верный ответ
-                            {
-                                sbl.answerType = 1;
-                                PerformStep(Color.Green); // делает progrsBarActiveIndex++ и MainSequenceCompleted
-                            }
-                            else // неправильный ответ
-                            {
-                                sbl.answerType = 0;
-                                PerformStep(Color.Red); // делает progrsBarActiveIndex++ и MainSequenceCompleted
-                            }
-                            LoadLearningEnvironment(progrsBarActiveIndex + 1);
+                            sbl.answerType = 1;
+                            PerformStep(Color.Green); // делает progrsBarActiveIndex++ or 0 и MainSequenceCompleted
                         }
-                        else
+                        else // неправильный ответ
                         {
-                            //MainSequenceCompleted = true;
-                            if (detectSkippedElements())
-                            {
-                                LoadLearningEnvSkipped();
-                            }
-                            else
-                            {
-                                ShowResult();
-                            }
+                            sbl.answerType = 0;
+                            PerformStep(Color.Red); // делает progrsBarActiveIndex++ or 0 и MainSequenceCompleted
                         }
+                        LoadLearningEnvironment(progrsBarActiveIndex + 1);
                     }
+                    else { MessageBox.Show("Вариант ответа не выбран!"); }
                 }
-                else { MessageBox.Show("Вариант ответа не выбран!"); }
             }
             catch (NullReferenceException ex)
             {
@@ -433,16 +419,16 @@ namespace Ayzenk2
 
         private bool indexIsLast() 
         {
-            if (progrsBarActiveIndex == MaxValue - 1) // последний элемент
+            if (progrsBarActiveIndex >= MaxValue - 1) // последний элемент
             {
                 return true;
             }
             return false;
         }
 
-        private bool indexIsPenult() 
+        private bool indexFromStartToPenult() 
         {
-            if (progrsBarActiveIndex == MaxValue - 1) // предпоследний элемент
+            if (progrsBarActiveIndex < MaxValue - 1) // от 0 до предпоследнего элемента
             {
                 return true;
             }
@@ -451,15 +437,15 @@ namespace Ayzenk2
 
         private void buttonSkip_Click(object sender, EventArgs e)
         {
-            if(progrsBarActiveIndex >= MaxValue - 1) // последний элемент
+            if ( indexIsLast() ) // последний элемент
             {
                 MainSequenceCompleted = true;
                 return; 
             } 
             
-            if (progrsBarActiveIndex < MaxValue - 1) // элементы от 0 до предпоследнего
+            if  ( indexFromStartToPenult() ) // элементы от 0 до предпоследнего
             {
-                PerformStep(Color.SandyBrown); // делает progrsBarActiveIndex++
+                PerformStep(Color.SandyBrown); // делает progrsBarActiveIndex++ or 0
                 LoadLearningEnvironment(progrsBarActiveIndex + 1);
             }
         }
