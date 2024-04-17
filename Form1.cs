@@ -19,7 +19,7 @@ namespace Ayzenk2
         // answer type: 0=false answer,1=true answer,2=skipped
         private LinkedList<ProgressBarElement> stepBoxList;
         //private List<int> skippedFrames;
-        private int progressBarActiveElementIndex { get; set; }
+        private int progrsBarActiveIndex { get; set; }
         private bool MainSequenceCompleted { get; set; }
         public int MaxValue { get; set; }
 
@@ -85,14 +85,25 @@ namespace Ayzenk2
             // vxProgressBar init
             VxProgressBarInit();
 
-            if (indexIsNotOwerflow())// ненужная проверка
-            {
-                LoadLearningEnvironment(progressBarActiveElementIndex + 1);
-            }
+            LoadLearningEnvironment(progrsBarActiveIndex + 1);
         }
 
         private void LoadLearningEnvironment(int step)
         {
+            var sbl = stepBoxList.ElementAt(progrsBarActiveIndex);
+            if (sbl.answered)
+            {
+                if (progrsBarActiveIndex == MaxValue - 1) // если последний элемент
+                {
+                    progrsBarActiveIndex = 0;
+                }
+                else
+                {
+                    progrsBarActiveIndex++;
+                }
+                return;
+            }
+
             setColor(Color.Black);
 
             var i = 1; // номер картинки (сквозная нумерация для задачи и ответов) 1 to 15s
@@ -162,7 +173,7 @@ namespace Ayzenk2
 
         private void VxProgressBarInit()
         {
-            progressBarActiveElementIndex = 0;
+            progrsBarActiveIndex = 0;
             stepBoxList = new LinkedList<ProgressBarElement>();
             stepSeparatorArray = new PictureBox[MaxValue];
 
@@ -236,17 +247,26 @@ namespace Ayzenk2
 
         public void setColor(Color color)
         {
-            if (indexIsNotOwerflow())
-            {
-                var sbl = stepBoxList.ElementAt(progressBarActiveElementIndex);
+            //if (indexIsNotOwerflow())
+            //{
+                var sbl = stepBoxList.ElementAt(progrsBarActiveIndex);
                 sbl.image.BackColor = color;
-            }
+            //}
         }
 
         public void PerformStep(Color color)
         {
             setColor(color);
-            progressBarActiveElementIndex += 1;
+            if (progrsBarActiveIndex >= MaxValue - 1) // последний элемент
+            {
+                progrsBarActiveIndex = 0;
+                MainSequenceCompleted = true;
+            }
+            else // не последний элемент
+            {
+                progrsBarActiveIndex += 1;
+            }
+                
         }
 
         // меняет местами картинки ListA[a].img - ListB[b].img
@@ -312,41 +332,41 @@ namespace Ayzenk2
 
                 if (checkedButton != null)
                 {
-                    var sbl = stepBoxList.ElementAt(progressBarActiveElementIndex);
-                    int oneBazedAnswer = trueAnswer + 1;
-                    if (checkedButton.Text.Equals(oneBazedAnswer.ToString())) // верный ответ
+                    var sbl = stepBoxList.ElementAt(progrsBarActiveIndex); //10
+                    if (sbl.answered) // если уже отвечали
                     {
-                        if (sbl != null)
-                        {
-                            sbl.answered = true;
-                            sbl.answerType = 1;
-                        }
-                        PerformStep(Color.Green); // делает Value++
+                        progrsBarActiveIndex += 1;
+                        return;
                     }
-                    else // неправильный ответ
+                    else // еще не отвечали
                     {
-                        if (sbl != null)
+                        sbl.answered = true;
+                        if (indexIsNotOwerflow())
                         {
-                            sbl.answered = true;
-                            sbl.answerType = 0;
-                        }
-                        PerformStep(Color.Red); // делает Value++
-                    }
-                    //
-                    if (indexIsNotOwerflow() && !MainSequenceCompleted)
-                    {
-                        LoadLearningEnvironment(progressBarActiveElementIndex + 1);
-                    }
-                    else
-                    {
-                        MainSequenceCompleted = true;
-                        if (GetSkippedElements())
-                        {
-                            LoadLearningEnvSkipped();
+                            int oneBazedAnswer = trueAnswer + 1;
+                            if (checkedButton.Text.Equals(oneBazedAnswer.ToString())) // верный ответ
+                            {
+                                sbl.answerType = 1;
+                                PerformStep(Color.Green); // делает progrsBarActiveIndex++ и MainSequenceCompleted
+                            }
+                            else // неправильный ответ
+                            {
+                                sbl.answerType = 0;
+                                PerformStep(Color.Red); // делает progrsBarActiveIndex++ и MainSequenceCompleted
+                            }
+                            LoadLearningEnvironment(progrsBarActiveIndex + 1);
                         }
                         else
                         {
-                            ShowResult();
+                            //MainSequenceCompleted = true;
+                            if (detectSkippedElements())
+                            {
+                                LoadLearningEnvSkipped();
+                            }
+                            else
+                            {
+                                ShowResult();
+                            }
                         }
                     }
                 }
@@ -360,7 +380,7 @@ namespace Ayzenk2
 
         private bool indexIsNotOwerflow()
         {
-            if (progressBarActiveElementIndex < MaxValue)
+            if (progrsBarActiveIndex < MaxValue) // от 0 до последнего
             {
                 return true;
             }
@@ -373,14 +393,14 @@ namespace Ayzenk2
             {
                 if (pbe.answerType == 2) // 2=skipped answer
                 {
-                    progressBarActiveElementIndex = pbe.index;
+                    progrsBarActiveIndex = pbe.index;
                     LoadLearningEnvironment(pbe.index + 1);
                     return;
                 }
             }
         }
 
-        private bool GetSkippedElements()
+        private bool detectSkippedElements()
         {
             foreach(ProgressBarElement pbe in stepBoxList)
             {
@@ -411,25 +431,36 @@ namespace Ayzenk2
             return i;
         }
 
+        private bool indexIsLast() 
+        {
+            if (progrsBarActiveIndex == MaxValue - 1) // последний элемент
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private bool indexIsPenult() 
+        {
+            if (progrsBarActiveIndex == MaxValue - 1) // предпоследний элемент
+            {
+                return true;
+            }
+            return false;
+        }
+
         private void buttonSkip_Click(object sender, EventArgs e)
         {
-            if(progressBarActiveElementIndex - 1 >= MaxValue) // последний элемент
-            { 
-                return; 
-            } 
-            else 
-            {
-                PerformStep(Color.SandyBrown);
-                buttonNext.Text = progressBarActiveElementIndex.ToString();
-            }
-            
-            if (indexIsNotOwerflow())
-            {
-                LoadLearningEnvironment(progressBarActiveElementIndex + 1);
-            }
-            else
+            if(progrsBarActiveIndex >= MaxValue - 1) // последний элемент
             {
                 MainSequenceCompleted = true;
+                return; 
+            } 
+            
+            if (progrsBarActiveIndex < MaxValue - 1) // элементы от 0 до предпоследнего
+            {
+                PerformStep(Color.SandyBrown); // делает progrsBarActiveIndex++
+                LoadLearningEnvironment(progrsBarActiveIndex + 1);
             }
         }
     }
