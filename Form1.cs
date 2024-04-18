@@ -85,10 +85,10 @@ namespace Ayzenk2
             // vxProgressBar init
             VxProgressBarInit();
 
-            LoadLearningEnvironment(progrsBarActiveIndex + 1);
+            showNextFrame();
         }
 
-        private void LoadLearningEnvironment(int step)
+        private void showNextFrame()
         {
             var sbl = stepBoxList.ElementAt(progrsBarActiveIndex);
             if (sbl.answered)
@@ -111,7 +111,7 @@ namespace Ayzenk2
             for (LinkedListNode<(int, PictureBox)> rn = listPics.First; rn != null; rn = rn.Next)
             {
                 var Val = rn.Value;
-                String fileName = $"C:/Users/verel/Desktop/MyAzencProg/ayzenc_details/{step}/a{step}_{i}.bmp";
+                String fileName = $"C:/Users/verel/Desktop/MyAzencProg/ayzenc_details/{progrsBarActiveIndex + 1}/a{progrsBarActiveIndex + 1}_{i}.bmp";
                 Val.Item2.Image = System.Drawing.Bitmap.FromFile(fileName);
                 Val.Item2.SizeMode = PictureBoxSizeMode.StretchImage;
                 rn.Value = Val;
@@ -131,7 +131,7 @@ namespace Ayzenk2
                 }
                 else
                 {
-                    fileName = $"C:/Users/verel/Desktop/MyAzencProg/ayzenc_details/{step}/a{step}_{i}.bmp";
+                    fileName = $"C:/Users/verel/Desktop/MyAzencProg/ayzenc_details/{progrsBarActiveIndex + 1}/a{progrsBarActiveIndex + 1}_{i}.bmp";
                 }
                 Val.Item2.Image = System.Drawing.Bitmap.FromFile(fileName);
                 Val.Item2.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -247,20 +247,21 @@ namespace Ayzenk2
 
         public void setColor(Color color)
         {
-            //if (indexIsNotOwerflow())
-            //{
-                var sbl = stepBoxList.ElementAt(progrsBarActiveIndex);
+            var sbl = stepBoxList.ElementAt(progrsBarActiveIndex);
+            if(sbl.image.BackColor == Color.SandyBrown || sbl.image.BackColor == Color.MidnightBlue
+                || sbl.image.BackColor == Color.Black)
+            {
                 sbl.image.BackColor = color;
-            //}
+            }
         }
 
         public void PerformStep(Color color)
         {
             setColor(color);
-            if (progrsBarActiveIndex >= MaxValue - 1) // последний элемент
+            if (indexIsLast()) // последний элемент
             {
                 progrsBarActiveIndex = 0;
-                MainSequenceCompleted = true;
+                //MainSequenceCompleted = true;
             }
             else // не последний элемент
             {
@@ -332,7 +333,7 @@ namespace Ayzenk2
                 {
                     //GetFirstUnanswered();
                     progrsBarActiveIndex++;
-                    LoadLearningEnvironment(progrsBarActiveIndex + 1);
+                    showNextFrame();
                     return;
                 }
                 else // если еще не отвечали
@@ -353,7 +354,7 @@ namespace Ayzenk2
                             sbl.answerType = 0;
                             PerformStep(Color.Red); // делает progrsBarActiveIndex++ or 0 и MainSequenceCompleted
                         }
-                        LoadLearningEnvironment(progrsBarActiveIndex + 1);
+                        showNextFrame();
                     }
                     else { MessageBox.Show("Вариант ответа не выбран!"); }
                 }
@@ -373,18 +374,18 @@ namespace Ayzenk2
             return false;
         }
 
-        private void LoadLearningEnvSkipped()
+        /*private void LoadLearningEnvSkipped()
         {
             foreach (ProgressBarElement pbe in stepBoxList)
             {
                 if (pbe.answerType == 2) // 2=skipped answer
                 {
                     progrsBarActiveIndex = pbe.index;
-                    LoadLearningEnvironment(pbe.index + 1);
+                    showNextFrame(pbe.index + 1);
                     return;
                 }
             }
-        }
+        }*/
 
         private bool detectSkippedElements()
         {
@@ -396,6 +397,18 @@ namespace Ayzenk2
                 }
             }
             return false;
+        }
+
+        private int getFirstSkippedElement()
+        {
+            foreach (ProgressBarElement pbe in stepBoxList)
+            {
+                if (pbe.answerType == 2) // 2=skipped answer
+                {
+                    return pbe.index;
+                }
+            }
+            return -1;
         }
 
         private void ShowResult()
@@ -437,17 +450,8 @@ namespace Ayzenk2
 
         private void buttonSkip_Click(object sender, EventArgs e)
         {
-            if ( indexIsLast() ) // последний элемент
-            {
-                MainSequenceCompleted = true;
-                return; 
-            } 
-            
-            if  ( indexFromStartToPenult() ) // элементы от 0 до предпоследнего
-            {
-                PerformStep(Color.SandyBrown); // делает progrsBarActiveIndex++ or 0
-                LoadLearningEnvironment(progrsBarActiveIndex + 1);
-            }
+            PerformStep(Color.SandyBrown); // делает progrsBarActiveIndex++ or 0
+            showNextFrame();
         }
     }
 }
