@@ -18,9 +18,10 @@ namespace Ayzenk2
         // bool answered, int answer type, image
         // answer type: 0=false answer,1=true answer,2=skipped
         private LinkedList<ProgressBarElement> stepBoxList;
-        //private List<int> skippedFrames;
+
         private int progrsBarActiveIndex { get; set; }
-        private bool MainSequenceCompleted { get; set; }
+
+        //private bool MainSequenceCompleted { get; set; }
         public int MaxValue { get; set; }
 
         // ========= Main Frame vars
@@ -47,8 +48,6 @@ namespace Ayzenk2
         private void Form1_Load(object sender, EventArgs e)
         {
             MaxValue = 10;
-            MainSequenceCompleted = false;
-            //skippedFrames = new List<int>();
 
             listPics = new LinkedList<(int, PictureBox)>(); // список картинок задачи
 
@@ -91,20 +90,28 @@ namespace Ayzenk2
         private void showNextFrame()
         {
             var sbl = stepBoxList.ElementAt(progrsBarActiveIndex);
-            if (sbl.answered)
+            if (sbl.answered) // если уже отвечали
             {
-                if (progrsBarActiveIndex == MaxValue - 1) // если последний элемент
+                if(getSkippedElementsCount() > 0) // если еще остались без ответа
                 {
-                    progrsBarActiveIndex = 0;
+                    if (indexIsLast()) // последний элемент
+                    {
+                        progrsBarActiveIndex = 0;
+                    }
+                    else // не последний элемент
+                    {
+                        progrsBarActiveIndex += 1;
+                    }
+                    showNextFrame();
                 }
                 else
                 {
-                    progrsBarActiveIndex++;
+                    ShowResult();
                 }
                 return;
             }
 
-            setColor(Color.Black);
+            setColor(Color.Black); // активный элемент будет черного цвета
 
             var i = 1; // номер картинки (сквозная нумерация для задачи и ответов) 1 to 15s
 
@@ -191,7 +198,7 @@ namespace Ayzenk2
 
                 var probarel = new ProgressBarElement();
                 probarel.answered = false;
-                probarel.answerType = 0;
+                probarel.answerType = 2; // 2 = skipped
                 probarel.index = i;
                 probarel.image = pbe;
                 stepBoxList.AddLast(probarel);
@@ -214,17 +221,13 @@ namespace Ayzenk2
                 switch ((e as MouseEventArgs).Button)
                 {
                     case MouseButtons.Left:
-                        if(MainSequenceCompleted)
-                        {
-                            //ShowSpecificFrame(Convert.ToInt32(control.Tag));
-                            control.BackColor = Color.Black;
-                        }
+                        //control.BackColor = Color.Black;
                         break;
                     case MouseButtons.Right:
-                        control.BackColor = Color.Red;
+                        //control.BackColor = Color.Red;
                         break;
                     case MouseButtons.Middle:
-                        control.BackColor = Color.SandyBrown;
+                        //control.BackColor = Color.SandyBrown;
                         break;
                 }
             }
@@ -321,24 +324,12 @@ namespace Ayzenk2
             labelDbgLog.Text = " ";// $"Rnd = {rnd1}, Rnd3 = {rnd3}";
         }
 
-
-
-
         private void buttonNext_Click(object sender, EventArgs e) // Кнопка "Ответить"
         {
             try
             {
                 var sbl = stepBoxList.ElementAt(progrsBarActiveIndex);
-                if (sbl.answered) // если уже отвечали
-                {
-                    //GetFirstUnanswered();
-                    progrsBarActiveIndex++;
-                    showNextFrame();
-                    return;
-                }
-                else // если еще не отвечали
-                {
-                    var checkedButton = groupBoxAnswer.Controls.OfType<RadioButton>()
+                var checkedButton = groupBoxAnswer.Controls.OfType<RadioButton>()
                                       .FirstOrDefault(r => r.Checked);
                     if (checkedButton != null) // если выбран ответ
                     {
@@ -357,7 +348,6 @@ namespace Ayzenk2
                         showNextFrame();
                     }
                     else { MessageBox.Show("Вариант ответа не выбран!"); }
-                }
             }
             catch (NullReferenceException ex)
             {
@@ -365,50 +355,17 @@ namespace Ayzenk2
             }
         }
 
-        private bool indexIsNotOwerflow()
+        private int getSkippedElementsCount()
         {
-            if (progrsBarActiveIndex < MaxValue) // от 0 до последнего
-            {
-                return true;
-            }
-            return false;
-        }
-
-        /*private void LoadLearningEnvSkipped()
-        {
-            foreach (ProgressBarElement pbe in stepBoxList)
-            {
-                if (pbe.answerType == 2) // 2=skipped answer
-                {
-                    progrsBarActiveIndex = pbe.index;
-                    showNextFrame(pbe.index + 1);
-                    return;
-                }
-            }
-        }*/
-
-        private bool detectSkippedElements()
-        {
+            int ret = 0;
             foreach(ProgressBarElement pbe in stepBoxList)
             {
                 if (pbe.answerType == 2) // 2=skipped answer
                 {
-                    return true;
+                    ret++;
                 }
             }
-            return false;
-        }
-
-        private int getFirstSkippedElement()
-        {
-            foreach (ProgressBarElement pbe in stepBoxList)
-            {
-                if (pbe.answerType == 2) // 2=skipped answer
-                {
-                    return pbe.index;
-                }
-            }
-            return -1;
+            return ret;
         }
 
         private void ShowResult()
@@ -439,17 +396,13 @@ namespace Ayzenk2
             return false;
         }
 
-        private bool indexFromStartToPenult() 
-        {
-            if (progrsBarActiveIndex < MaxValue - 1) // от 0 до предпоследнего элемента
-            {
-                return true;
-            }
-            return false;
-        }
-
         private void buttonSkip_Click(object sender, EventArgs e)
         {
+            if(getSkippedElementsCount() == 1) // если остался один элемент без ответа то уже нельзя пропустить
+            {
+                buttonSkip.Enabled = false;
+                return;
+            }
             PerformStep(Color.SandyBrown); // делает progrsBarActiveIndex++ or 0
             showNextFrame();
         }

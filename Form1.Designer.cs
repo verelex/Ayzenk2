@@ -62,6 +62,10 @@
             labelDbgLog = new Label();
             panel1 = new Panel();
             buttonSkip = new Button();
+            menuStrip1 = new MenuStrip();
+            опцииToolStripMenuItem = new ToolStripMenuItem();
+            оПрограммеToolStripMenuItem = new ToolStripMenuItem();
+            выходToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
@@ -82,6 +86,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox11).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox10).BeginInit();
             groupBoxQuestion.SuspendLayout();
+            menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
             // pictureBox1
@@ -185,7 +190,7 @@
             groupBoxAnswer.Controls.Add(radioButton3);
             groupBoxAnswer.Controls.Add(radioButton2);
             groupBoxAnswer.Controls.Add(radioButton1);
-            groupBoxAnswer.Location = new Point(413, 15);
+            groupBoxAnswer.Location = new Point(413, 46);
             groupBoxAnswer.Margin = new Padding(3, 4, 3, 4);
             groupBoxAnswer.Name = "groupBoxAnswer";
             groupBoxAnswer.Padding = new Padding(3, 4, 3, 4);
@@ -379,7 +384,7 @@
             // 
             // buttonStart
             // 
-            buttonStart.Location = new Point(328, 539);
+            buttonStart.Location = new Point(328, 540);
             buttonStart.Margin = new Padding(3, 4, 3, 4);
             buttonStart.Name = "buttonStart";
             buttonStart.Size = new Size(159, 64);
@@ -390,7 +395,7 @@
             // 
             // buttonNext
             // 
-            buttonNext.Location = new Point(493, 539);
+            buttonNext.Location = new Point(493, 540);
             buttonNext.Margin = new Padding(3, 4, 3, 4);
             buttonNext.Name = "buttonNext";
             buttonNext.Size = new Size(159, 64);
@@ -410,7 +415,7 @@
             groupBoxQuestion.Controls.Add(pictureBox8);
             groupBoxQuestion.Controls.Add(pictureBox6);
             groupBoxQuestion.Controls.Add(pictureBox7);
-            groupBoxQuestion.Location = new Point(13, 15);
+            groupBoxQuestion.Location = new Point(13, 46);
             groupBoxQuestion.Margin = new Padding(3, 4, 3, 4);
             groupBoxQuestion.Name = "groupBoxQuestion";
             groupBoxQuestion.Padding = new Padding(3, 4, 3, 4);
@@ -422,7 +427,7 @@
             // labelDbgLog
             // 
             labelDbgLog.AutoSize = true;
-            labelDbgLog.Location = new Point(20, 539);
+            labelDbgLog.Location = new Point(20, 540);
             labelDbgLog.Name = "labelDbgLog";
             labelDbgLog.Size = new Size(45, 25);
             labelDbgLog.TabIndex = 15;
@@ -431,20 +436,49 @@
             // panel1
             // 
             panel1.BackColor = SystemColors.Control;
-            panel1.Location = new Point(181, 433);
+            panel1.Location = new Point(181, 446);
             panel1.Name = "panel1";
             panel1.Size = new Size(737, 72);
             panel1.TabIndex = 16;
             // 
             // buttonSkip
             // 
-            buttonSkip.Location = new Point(658, 539);
+            buttonSkip.Location = new Point(658, 540);
             buttonSkip.Name = "buttonSkip";
             buttonSkip.Size = new Size(159, 64);
             buttonSkip.TabIndex = 17;
             buttonSkip.Text = "Пропустить";
             buttonSkip.UseVisualStyleBackColor = true;
             buttonSkip.Click += buttonSkip_Click;
+            // 
+            // menuStrip1
+            // 
+            menuStrip1.ImageScalingSize = new Size(24, 24);
+            menuStrip1.Items.AddRange(new ToolStripItem[] { опцииToolStripMenuItem });
+            menuStrip1.Location = new Point(0, 0);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.Size = new Size(1091, 33);
+            menuStrip1.TabIndex = 18;
+            menuStrip1.Text = "menuStrip1";
+            // 
+            // опцииToolStripMenuItem
+            // 
+            опцииToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { оПрограммеToolStripMenuItem, выходToolStripMenuItem });
+            опцииToolStripMenuItem.Name = "опцииToolStripMenuItem";
+            опцииToolStripMenuItem.Size = new Size(83, 29);
+            опцииToolStripMenuItem.Text = "Опции";
+            // 
+            // оПрограммеToolStripMenuItem
+            // 
+            оПрограммеToolStripMenuItem.Name = "оПрограммеToolStripMenuItem";
+            оПрограммеToolStripMenuItem.Size = new Size(270, 34);
+            оПрограммеToolStripMenuItem.Text = "О программе";
+            // 
+            // выходToolStripMenuItem
+            // 
+            выходToolStripMenuItem.Name = "выходToolStripMenuItem";
+            выходToolStripMenuItem.Size = new Size(270, 34);
+            выходToolStripMenuItem.Text = "Выход";
             // 
             // Form1
             // 
@@ -458,6 +492,8 @@
             Controls.Add(buttonNext);
             Controls.Add(buttonStart);
             Controls.Add(groupBoxAnswer);
+            Controls.Add(menuStrip1);
+            MainMenuStrip = menuStrip1;
             Margin = new Padding(3, 4, 3, 4);
             Name = "Form1";
             Text = "Ayzenk";
@@ -483,6 +519,8 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox11).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox10).EndInit();
             groupBoxQuestion.ResumeLayout(false);
+            menuStrip1.ResumeLayout(false);
+            menuStrip1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -523,5 +561,9 @@
         private RadioButton radioButton7;
         private Panel panel1;
         private Button buttonSkip;
+        private MenuStrip menuStrip1;
+        private ToolStripMenuItem опцииToolStripMenuItem;
+        private ToolStripMenuItem оПрограммеToolStripMenuItem;
+        private ToolStripMenuItem выходToolStripMenuItem;
     }
 }

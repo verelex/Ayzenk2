@@ -18,7 +18,7 @@ namespace Ayzenk2
         public ProgressBarElement()
         {
             this.answered = false;
-            this.answerType = 2;
+            this.answerType = 0;
             this.index = 0;
             this.image = null;
         }
