@@ -13,6 +13,8 @@ namespace Ayzenk2
 {
     public partial class Form1 : Form
     {
+        private string AppName = "Ayzenk";
+        private string versionPrg = "0.2";
         // ========= vxProgressBar vars
         private PictureBox[] stepSeparatorArray;
         // bool answered, int answer type, image
@@ -60,7 +62,7 @@ namespace Ayzenk2
             listPics.AddLast((0, pictureBox7));
             listPics.AddLast((0, pictureBox8));
             listPics.AddLast((0, pictureBox9));
-            
+
             int dbg1 = listPics.Count;
 
             listAnsw = new LinkedList<(int, PictureBox)>(); // список картинок ответов (10-15)
@@ -71,7 +73,7 @@ namespace Ayzenk2
             listAnsw.AddLast((0, pictureBox13));
             listAnsw.AddLast((0, pictureBox14));
             listAnsw.AddLast((0, pictureBox15));
-            
+
             int dbg2 = listAnsw.Count;
 
             groupBoxQuestion.Visible = false;
@@ -92,7 +94,7 @@ namespace Ayzenk2
             var sbl = stepBoxList.ElementAt(progrsBarActiveIndex);
             if (sbl.answered) // если уже отвечали
             {
-                if(getSkippedElementsCount() > 0) // если еще остались без ответа
+                if (getSkippedElementsCount() > 0) // если еще остались без ответа
                 {
                     if (indexIsLast()) // последний элемент
                     {
@@ -202,7 +204,7 @@ namespace Ayzenk2
                 probarel.index = i;
                 probarel.image = pbe;
                 stepBoxList.AddLast(probarel);
-                
+
                 stepSeparatorArray[i] = new PictureBox();
                 stepSeparatorArray[i].Location = new Point(i * 65 + 1, 0);
                 stepSeparatorArray[i].Width = 10;
@@ -251,7 +253,7 @@ namespace Ayzenk2
         public void setColor(Color color)
         {
             var sbl = stepBoxList.ElementAt(progrsBarActiveIndex);
-            if(sbl.image.BackColor == Color.SandyBrown || sbl.image.BackColor == Color.MidnightBlue
+            if (sbl.image.BackColor == Color.SandyBrown || sbl.image.BackColor == Color.MidnightBlue
                 || sbl.image.BackColor == Color.Black)
             {
                 sbl.image.BackColor = color;
@@ -270,7 +272,7 @@ namespace Ayzenk2
             {
                 progrsBarActiveIndex += 1;
             }
-                
+
         }
 
         // меняет местами картинки ListA[a].img - ListB[b].img
@@ -331,23 +333,23 @@ namespace Ayzenk2
                 var sbl = stepBoxList.ElementAt(progrsBarActiveIndex);
                 var checkedButton = groupBoxAnswer.Controls.OfType<RadioButton>()
                                       .FirstOrDefault(r => r.Checked);
-                    if (checkedButton != null) // если выбран ответ
+                if (checkedButton != null) // если выбран ответ
+                {
+                    sbl.answered = true;
+                    int oneBazedAnswer = trueAnswer + 1;
+                    if (checkedButton.Text.Equals(oneBazedAnswer.ToString())) // верный ответ
                     {
-                        sbl.answered = true;
-                        int oneBazedAnswer = trueAnswer + 1;
-                        if (checkedButton.Text.Equals(oneBazedAnswer.ToString())) // верный ответ
-                        {
-                            sbl.answerType = 1;
-                            PerformStep(Color.Green); // делает progrsBarActiveIndex++ or 0 и MainSequenceCompleted
-                        }
-                        else // неправильный ответ
-                        {
-                            sbl.answerType = 0;
-                            PerformStep(Color.Red); // делает progrsBarActiveIndex++ or 0 и MainSequenceCompleted
-                        }
-                        showNextFrame();
+                        sbl.answerType = 1;
+                        PerformStep(Color.Green); // делает progrsBarActiveIndex++ or 0 и MainSequenceCompleted
                     }
-                    else { MessageBox.Show("Вариант ответа не выбран!"); }
+                    else // неправильный ответ
+                    {
+                        sbl.answerType = 0;
+                        PerformStep(Color.Red); // делает progrsBarActiveIndex++ or 0 и MainSequenceCompleted
+                    }
+                    showNextFrame();
+                }
+                else { MessageBox.Show("Вариант ответа не выбран!"); }
             }
             catch (NullReferenceException ex)
             {
@@ -358,7 +360,7 @@ namespace Ayzenk2
         private int getSkippedElementsCount()
         {
             int ret = 0;
-            foreach(ProgressBarElement pbe in stepBoxList)
+            foreach (ProgressBarElement pbe in stepBoxList)
             {
                 if (pbe.answerType == 2) // 2=skipped answer
                 {
@@ -371,7 +373,7 @@ namespace Ayzenk2
         private void ShowResult()
         {
             string str = $"согласно данного теста ваш IQ по 10-балльной системе = {GetTrueAnswersCount()}";
-            MessageBox.Show(str,"All completed!",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+            MessageBox.Show(str, "All completed!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         private int GetTrueAnswersCount()
@@ -387,7 +389,7 @@ namespace Ayzenk2
             return i;
         }
 
-        private bool indexIsLast() 
+        private bool indexIsLast()
         {
             if (progrsBarActiveIndex >= MaxValue - 1) // последний элемент
             {
@@ -398,13 +400,30 @@ namespace Ayzenk2
 
         private void buttonSkip_Click(object sender, EventArgs e)
         {
-            if(getSkippedElementsCount() == 1) // если остался один элемент без ответа то уже нельзя пропустить
+            if (getSkippedElementsCount() == 1) // если остался один элемент без ответа то уже нельзя пропустить
             {
                 buttonSkip.Enabled = false;
                 return;
             }
             PerformStep(Color.SandyBrown); // делает progrsBarActiveIndex++ or 0
             showNextFrame();
+        }
+
+        private void оПрограммеToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var isDebuggerAttached = System.Diagnostics.Debugger.IsAttached;
+            string dbgq = string.Empty;
+
+            if (isDebuggerAttached)
+            {
+                dbgq = "\n ___DEBUG_MODE___";
+            }
+            MessageBox.Show("Автор: Николаев Александр\n https://github.com/verelex\n ayzenk@mynv.ru" + dbgq, $"{AppName} {versionPrg}");
+        }
+
+        private void выходToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }
