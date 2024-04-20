@@ -15,6 +15,7 @@ namespace Ayzenk2
     {
         private string AppName = "Ayzenk";
         private string versionPrg = "0.2";
+        private string AppPath = Application.StartupPath;
         // ========= vxProgressBar vars
         private PictureBox[] stepSeparatorArray;
         // bool answered, int answer type, image
@@ -120,7 +121,7 @@ namespace Ayzenk2
             for (LinkedListNode<(int, PictureBox)> rn = listPics.First; rn != null; rn = rn.Next)
             {
                 var Val = rn.Value;
-                String fileName = $"C:/Users/verel/Desktop/MyAzencProg/ayzenc_details/{progrsBarActiveIndex + 1}/a{progrsBarActiveIndex + 1}_{i}.bmp";
+                String fileName = AppPath + $"data/{progrsBarActiveIndex + 1}/a{progrsBarActiveIndex + 1}_{i}.bmp";
                 Val.Item2.Image = System.Drawing.Bitmap.FromFile(fileName);
                 Val.Item2.SizeMode = PictureBoxSizeMode.StretchImage;
                 rn.Value = Val;
@@ -135,12 +136,12 @@ namespace Ayzenk2
                 String fileName;
                 if (i == 15)
                 {
-                    fileName = "C:/Users/verel/Desktop/MyAzencProg/ayzenc_details/__Q1.bmp";
+                    fileName = AppPath + @"data/__Q1.bmp";
                     Val.Item1 = 1; // помечаем правильный ответ
                 }
                 else
                 {
-                    fileName = $"C:/Users/verel/Desktop/MyAzencProg/ayzenc_details/{progrsBarActiveIndex + 1}/a{progrsBarActiveIndex + 1}_{i}.bmp";
+                    fileName = AppPath + $"data/{progrsBarActiveIndex + 1}/a{progrsBarActiveIndex + 1}_{i}.bmp";
                 }
                 Val.Item2.Image = System.Drawing.Bitmap.FromFile(fileName);
                 Val.Item2.SizeMode = PictureBoxSizeMode.StretchImage;
